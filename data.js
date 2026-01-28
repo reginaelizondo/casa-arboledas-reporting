@@ -119,10 +119,17 @@ const DataService = {
     },
 
     /**
-     * Fetch a single CSV from URL.
+     * CORS Proxy for Google Sheets requests
+     */
+    CORS_PROXY: 'https://corsproxy.io/?',
+
+    /**
+     * Fetch a single CSV from URL using CORS proxy.
      */
     async fetchCSV(url) {
-        const response = await fetch(url);
+        // Use CORS proxy to bypass CORS restrictions on Google Sheets
+        const proxyUrl = this.CORS_PROXY + encodeURIComponent(url);
+        const response = await fetch(proxyUrl);
         if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         const text = await response.text();
         return this.parseCSV(text);
