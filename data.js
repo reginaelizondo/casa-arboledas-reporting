@@ -119,20 +119,33 @@ const DataService = {
     },
 
     /**
-     * CORS Proxy for Google Sheets requests
+     * CORS Proxies for Google Sheets requests (with fallback)
      */
-    CORS_PROXY: 'https://corsproxy.io/?',
+    CORS_PROXIES: [
+        'https://api.allorigins.win/raw?url=',
+        'https://corsproxy.io/?'
+    ],
 
     /**
-     * Fetch a single CSV from URL using CORS proxy.
+     * Fetch a single CSV from URL using CORS proxy with fallback.
      */
     async fetchCSV(url) {
-        // Use CORS proxy to bypass CORS restrictions on Google Sheets
-        const proxyUrl = this.CORS_PROXY + encodeURIComponent(url);
-        const response = await fetch(proxyUrl);
-        if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        const text = await response.text();
-        return this.parseCSV(text);
+        let lastError;
+        for (const proxy of this.CORS_PROXIES) {
+            try {
+                const proxyUrl = proxy + encodeURIComponent(url);
+                const response = await fetch(proxyUrl);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                const text = await response.text();
+                return this.parseCSV(text);
+            } catch (err) {
+                lastError = err;
+                console.warn(`Proxy ${proxy} failed, trying next...`, err.message);
+            }
+        }
+        throw lastError || new Error('All CORS proxies failed');
     },
 
     /**
