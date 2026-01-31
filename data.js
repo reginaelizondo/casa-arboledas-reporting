@@ -119,33 +119,26 @@ const DataService = {
     },
 
     /**
-     * CORS Proxies for Google Sheets requests (with fallback)
-     */
-    CORS_PROXIES: [
-        'https://api.allorigins.win/raw?url=',
-        'https://corsproxy.io/?'
-    ],
-
-    /**
-     * Fetch a single CSV from URL using CORS proxy with fallback.
+     * Fetch a single CSV from URL using allorigins CORS proxy.
+     * Uses the /get endpoint which returns JSON with base64-encoded content.
      */
     async fetchCSV(url) {
-        let lastError;
-        for (const proxy of this.CORS_PROXIES) {
-            try {
-                const proxyUrl = proxy + encodeURIComponent(url);
-                const response = await fetch(proxyUrl);
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                }
-                const text = await response.text();
-                return this.parseCSV(text);
-            } catch (err) {
-                lastError = err;
-                console.warn(`Proxy ${proxy} failed, trying next...`, err.message);
-            }
+        const proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent(url);
+        const response = await fetch(proxyUrl);
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
-        throw lastError || new Error('All CORS proxies failed');
+        const json = await response.json();
+
+        // allorigins returns { contents: "data:text/csv;base64,..." } or plain text
+        let csvText = json.contents;
+        if (csvText.startsWith('data:')) {
+            // Extract base64 content after the comma
+            const base64Data = csvText.split(',')[1];
+            csvText = atob(base64Data);
+        }
+
+        return this.parseCSV(csvText);
     },
 
     /**
