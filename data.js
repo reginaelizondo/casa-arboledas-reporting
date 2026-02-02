@@ -124,6 +124,11 @@ const DataService = {
     async fetchCSV(url) {
         const proxies = [
             {
+                name: 'codetabs',
+                getUrl: (u) => 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u),
+                parseResponse: async (response) => await response.text()
+            },
+            {
                 name: 'allorigins',
                 getUrl: (u) => 'https://api.allorigins.win/get?url=' + encodeURIComponent(u),
                 parseResponse: async (response) => {
@@ -140,11 +145,6 @@ const DataService = {
                 name: 'corsproxy.io',
                 getUrl: (u) => 'https://corsproxy.io/?' + encodeURIComponent(u),
                 parseResponse: async (response) => await response.text()
-            },
-            {
-                name: 'cors-anywhere-heroku',
-                getUrl: (u) => 'https://cors-anywhere.herokuapp.com/' + u,
-                parseResponse: async (response) => await response.text()
             }
         ];
 
@@ -153,11 +153,7 @@ const DataService = {
             try {
                 console.log(`Trying proxy: ${proxy.name}`);
                 const proxyUrl = proxy.getUrl(url);
-                const response = await fetch(proxyUrl, {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                });
+                const response = await fetch(proxyUrl);
                 if (!response.ok) {
                     throw new Error(`HTTP ${response.status}`);
                 }
