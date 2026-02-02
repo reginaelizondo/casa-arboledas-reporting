@@ -167,7 +167,7 @@
                 <h2 class="section-title">Presupuesto vs Ejecutado</h2>
 
                 <!-- Hard Costs -->
-                <div class="card">
+                <div class="card budget-card">
                     <div class="card-header">
                         <h3 class="card-title">
                             <span class="category-dot hard"></span>
@@ -178,13 +178,17 @@
                     <div id="hard-cost-progress" class="budget-progress">
                         <!-- Filled by JS -->
                     </div>
-                    <div id="hard-cost-breakdown" class="subcategory-breakdown">
+                    <button class="breakdown-toggle" onclick="App.toggleBreakdown('hard-cost-breakdown')">
+                        <span class="toggle-text">Ver desglose</span>
+                        <svg class="toggle-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                    </button>
+                    <div id="hard-cost-breakdown" class="subcategory-breakdown collapsed">
                         <!-- Filled by JS - desglose de subcategorías -->
                     </div>
                 </div>
 
                 <!-- Soft Costs -->
-                <div class="card">
+                <div class="card budget-card">
                     <div class="card-header">
                         <h3 class="card-title">
                             <span class="category-dot soft"></span>
@@ -195,13 +199,17 @@
                     <div id="soft-cost-progress" class="budget-progress">
                         <!-- Filled by JS -->
                     </div>
-                    <div id="soft-cost-breakdown" class="subcategory-breakdown">
+                    <button class="breakdown-toggle" onclick="App.toggleBreakdown('soft-cost-breakdown')">
+                        <span class="toggle-text">Ver desglose</span>
+                        <svg class="toggle-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                    </button>
+                    <div id="soft-cost-breakdown" class="subcategory-breakdown collapsed">
                         <!-- Filled by JS -->
                     </div>
                 </div>
 
                 <!-- Terreno -->
-                <div class="card">
+                <div class="card budget-card">
                     <div class="card-header">
                         <h3 class="card-title">
                             <span class="category-dot terreno"></span>
@@ -212,7 +220,11 @@
                     <div id="terreno-progress" class="budget-progress">
                         <!-- Filled by JS -->
                     </div>
-                    <div id="terreno-breakdown" class="subcategory-breakdown">
+                    <button class="breakdown-toggle" onclick="App.toggleBreakdown('terreno-breakdown')">
+                        <span class="toggle-text">Ver desglose</span>
+                        <svg class="toggle-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                    </button>
+                    <div id="terreno-breakdown" class="subcategory-breakdown collapsed">
                         <!-- Filled by JS -->
                     </div>
                 </div>
