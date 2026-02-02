@@ -49,7 +49,6 @@ const App = {
             DataService.clearCache();
             this.loadData();
         });
-        document.getElementById('print-btn').addEventListener('click', () => window.print());
         document.getElementById('logout-btn').addEventListener('click', () => this.handleLogout());
 
         // Lightbox keyboard navigation
