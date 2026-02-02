@@ -1622,6 +1622,207 @@ body {
     --success: #38a169;
 }
 
+/* === PROJECT DURATION === */
+.project-duration-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+}
+
+.duration-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+}
+
+.duration-item.highlight {
+    background: var(--secondary-light);
+}
+
+.duration-icon {
+    color: var(--text-secondary);
+    flex-shrink: 0;
+}
+
+.duration-item.highlight .duration-icon {
+    color: var(--secondary);
+}
+
+.duration-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.duration-label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.duration-value {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-top: 0.2rem;
+}
+
+.duration-value.positive {
+    color: var(--secondary);
+}
+
+/* === INVESTORS CARDS GRID === */
+.investors-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.investor-card-full {
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+}
+
+.investor-card-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.25rem;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border-light);
+}
+
+.investor-name-large {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.investor-card-body {
+    padding: 1.25rem;
+}
+
+.investor-stat {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.investor-stat:last-of-type {
+    border-bottom: none;
+}
+
+.investor-stat-label {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.investor-stat-value {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.investor-stat-value.positive {
+    color: var(--secondary);
+}
+
+.investor-stat-value.warning {
+    color: var(--warning);
+}
+
+.investor-progress-section {
+    margin-top: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.investor-progress-section .progress-bar-bg {
+    flex: 1;
+}
+
+.investor-pct {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--secondary);
+    min-width: 50px;
+    text-align: right;
+}
+
+/* === INVESTORS SUMMARY CARD === */
+.investors-summary-card {
+    margin-top: 1rem;
+}
+
+.capital-summary-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 2fr;
+    gap: 1.5rem;
+    align-items: center;
+}
+
+.capital-summary-item {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+}
+
+.capital-summary-item.highlight {
+    background: var(--warning-light);
+}
+
+.capital-summary-label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.capital-summary-value {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-top: 0.25rem;
+}
+
+.capital-summary-value.positive {
+    color: var(--secondary);
+}
+
+.capital-summary-value.warning {
+    color: var(--warning);
+}
+
+.capital-summary-progress {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.capital-summary-progress .progress-bar-bg {
+    flex: 1;
+}
+
+.capital-summary-pct {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--secondary);
+    text-align: center;
+}
+
 /* === RESPONSIVE === */
 @media (max-width: 1024px) {
     .summary-cards {
@@ -1629,6 +1830,12 @@ body {
     }
     .budget-total-summary {
         grid-template-columns: 1fr;
+    }
+    .project-duration-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .capital-summary-row {
+        grid-template-columns: 1fr 1fr;
     }
 }
 
@@ -1644,6 +1851,18 @@ body {
     }
     .property-details {
         grid-template-columns: 1fr;
+    }
+    /* Project duration responsive */
+    .project-duration-grid {
+        grid-template-columns: 1fr;
+    }
+    /* Investors cards responsive */
+    .investors-cards-grid {
+        grid-template-columns: 1fr;
+    }
+    .capital-summary-row {
+        grid-template-columns: 1fr;
+        gap: 1rem;
     }
     /* Investors responsive */
     .investors-layout {

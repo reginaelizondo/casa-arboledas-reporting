@@ -436,6 +436,25 @@ const DataService = {
             data.capitalIndicators.capitalMultipleLabel = (rows[21][0] || 'Múltiplo de Capital').trim();
         }
 
+        // Project Duration (rows 25, 27, 29, 38 = indices 24, 26, 28, 37)
+        data.projectDuration = {};
+        if (rows[24]) {
+            data.projectDuration.startDate = (rows[24][2] || '').trim();
+            data.projectDuration.startLabel = (rows[24][0] || 'Inicio del Proyecto').trim();
+        }
+        if (rows[26]) {
+            data.projectDuration.endDate = (rows[26][2] || '').trim();
+            data.projectDuration.endLabel = (rows[26][0] || 'Proyección Fin de Proyecto').trim();
+        }
+        if (rows[28]) {
+            data.projectDuration.duration = (rows[28][2] || '').trim();
+            data.projectDuration.durationLabel = (rows[28][0] || 'Duración del Proyecto').trim();
+        }
+        if (rows[37]) {
+            data.projectDuration.annualizedRoi = this.parsePercent(rows[37][2]);
+            data.projectDuration.annualizedRoiLabel = (rows[37][0] || 'ROI Anualizado').trim();
+        }
+
         return data;
     },
 

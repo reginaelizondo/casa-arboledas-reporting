@@ -366,8 +366,51 @@ const App = {
             </div>
         `;
 
-        // Investors
-        const investorsEl = document.getElementById('investors-list');
+        // Project Duration
+        const pd = capital.projectDuration || {};
+        document.getElementById('project-duration').innerHTML = `
+            <div class="duration-item">
+                <span class="duration-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                </span>
+                <div class="duration-info">
+                    <span class="duration-label">${pd.startLabel || 'Inicio del Proyecto'}</span>
+                    <span class="duration-value">${pd.startDate || '--'}</span>
+                </div>
+            </div>
+            <div class="duration-item">
+                <span class="duration-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                </span>
+                <div class="duration-info">
+                    <span class="duration-label">${pd.endLabel || 'Proyección Fin de Proyecto'}</span>
+                    <span class="duration-value">${pd.endDate || '--'}</span>
+                </div>
+            </div>
+            <div class="duration-item">
+                <span class="duration-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+                </span>
+                <div class="duration-info">
+                    <span class="duration-label">${pd.durationLabel || 'Duración del Proyecto'}</span>
+                    <span class="duration-value">${pd.duration || '--'}</span>
+                </div>
+            </div>
+            <div class="duration-item highlight">
+                <span class="duration-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+                </span>
+                <div class="duration-info">
+                    <span class="duration-label">${pd.annualizedRoiLabel || 'ROI Anualizado'}</span>
+                    <span class="duration-value positive">${DataService.formatPercent(pd.annualizedRoi || 0)}</span>
+                </div>
+            </div>
+        `;
+
+        // Investors - Cards side by side
+        const investorsCardsEl = document.getElementById('investors-cards');
+        const investorsSummaryEl = document.getElementById('investors-summary');
+
         if (capital.investors.length > 0) {
             // Calcular totales
             const totalProjected = capital.investors.reduce((sum, inv) => sum + (inv.projected || 0), 0);
@@ -375,72 +418,70 @@ const App = {
             const totalRemaining = totalProjected - totalContributed;
             const pctTotal = totalProjected > 0 ? (totalContributed / totalProjected) * 100 : 0;
 
-            investorsEl.innerHTML = `
-                <div class="investors-layout">
-                    <div class="investors-totals">
-                        <div class="investors-totals-header">
-                            <h4>Resumen de Capital</h4>
+            // Tarjetas de inversionistas lado a lado
+            investorsCardsEl.innerHTML = capital.investors.map(inv => {
+                const initials = inv.name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+                const contributed = inv.contributed || 0;
+                const projected = inv.projected || 0;
+                const remaining = projected - contributed;
+                const pctContributed = projected > 0 ? (contributed / projected) * 100 : 0;
+                return `
+                    <div class="investor-card-full">
+                        <div class="investor-card-header">
+                            <div class="investor-avatar">${initials}</div>
+                            <div class="investor-name-large">${inv.name}</div>
                         </div>
-                        <div class="investors-total-row">
-                            <span class="investors-total-label">Capital Proyectado</span>
-                            <span class="investors-total-value">${DataService.formatCurrency(totalProjected)}</span>
-                        </div>
-                        <div class="investors-total-row">
-                            <span class="investors-total-label">Total Aportado</span>
-                            <span class="investors-total-value positive">${DataService.formatCurrency(totalContributed)}</span>
-                        </div>
-                        <div class="investors-total-row highlight-row">
-                            <span class="investors-total-label">Monto Faltante</span>
-                            <span class="investors-total-value ${totalRemaining > 0 ? 'warning' : 'positive'}">${DataService.formatCurrency(totalRemaining)}</span>
-                        </div>
-                        <div class="investors-total-progress">
-                            <div class="progress-bar-bg large">
-                                <div class="progress-bar-fill green" style="width: ${Math.min(pctTotal, 100)}%"></div>
+                        <div class="investor-card-body">
+                            <div class="investor-stat">
+                                <span class="investor-stat-label">Proyectado</span>
+                                <span class="investor-stat-value">${DataService.formatCurrency(projected)}</span>
                             </div>
-                            <span class="investors-total-pct">${DataService.formatPercent(pctTotal)} aportado</span>
+                            <div class="investor-stat">
+                                <span class="investor-stat-label">Aportado</span>
+                                <span class="investor-stat-value positive">${DataService.formatCurrency(contributed)}</span>
+                            </div>
+                            <div class="investor-stat">
+                                <span class="investor-stat-label">Faltante</span>
+                                <span class="investor-stat-value ${remaining > 0 ? 'warning' : ''}">${DataService.formatCurrency(remaining)}</span>
+                            </div>
+                            <div class="investor-progress-section">
+                                <div class="progress-bar-bg">
+                                    <div class="progress-bar-fill green" style="width: ${Math.min(pctContributed, 100)}%"></div>
+                                </div>
+                                <span class="investor-pct">${DataService.formatPercent(pctContributed)}</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="investors-detail">
-                        <h4 class="investors-detail-title">Detalle por Inversionista</h4>
-                        <div class="investors-cards-vertical">
-                            ${capital.investors.map(inv => {
-                                const initials = inv.name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
-                                const contributed = inv.contributed || 0;
-                                const projected = inv.projected || 0;
-                                const remaining = projected - contributed;
-                                const pctContributed = projected > 0 ? (contributed / projected) * 100 : 0;
-                                return `
-                                    <div class="investor-card-horizontal">
-                                        <div class="investor-avatar">${initials}</div>
-                                        <div class="investor-main">
-                                            <div class="investor-name">${inv.name}</div>
-                                            <div class="investor-progress-bar">
-                                                <div class="investor-progress-fill" style="width: ${Math.min(pctContributed, 100)}%"></div>
-                                            </div>
-                                        </div>
-                                        <div class="investor-numbers">
-                                            <div class="investor-number">
-                                                <span class="investor-number-label">Proyectado</span>
-                                                <span class="investor-number-value">${DataService.formatCurrencyShort(projected)}</span>
-                                            </div>
-                                            <div class="investor-number">
-                                                <span class="investor-number-label">Aportado</span>
-                                                <span class="investor-number-value positive">${DataService.formatCurrencyShort(contributed)}</span>
-                                            </div>
-                                            <div class="investor-number">
-                                                <span class="investor-number-label">Faltante</span>
-                                                <span class="investor-number-value ${remaining > 0 ? 'warning' : ''}">${DataService.formatCurrencyShort(remaining)}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                `;
-                            }).join('')}
+                `;
+            }).join('');
+
+            // Resumen de capital a lo largo
+            investorsSummaryEl.innerHTML = `
+                <h3 class="card-title">Resumen de Capital</h3>
+                <div class="capital-summary-row">
+                    <div class="capital-summary-item">
+                        <span class="capital-summary-label">Capital Proyectado</span>
+                        <span class="capital-summary-value">${DataService.formatCurrency(totalProjected)}</span>
+                    </div>
+                    <div class="capital-summary-item">
+                        <span class="capital-summary-label">Total Aportado</span>
+                        <span class="capital-summary-value positive">${DataService.formatCurrency(totalContributed)}</span>
+                    </div>
+                    <div class="capital-summary-item highlight">
+                        <span class="capital-summary-label">Monto Faltante</span>
+                        <span class="capital-summary-value ${totalRemaining > 0 ? 'warning' : 'positive'}">${DataService.formatCurrency(totalRemaining)}</span>
+                    </div>
+                    <div class="capital-summary-progress">
+                        <div class="progress-bar-bg large">
+                            <div class="progress-bar-fill green" style="width: ${Math.min(pctTotal, 100)}%"></div>
                         </div>
+                        <span class="capital-summary-pct">${DataService.formatPercent(pctTotal)} aportado</span>
                     </div>
                 </div>
             `;
         } else {
-            investorsEl.innerHTML = '<p class="no-data">No se encontraron datos de inversionistas.</p>';
+            investorsCardsEl.innerHTML = '<p class="no-data">No se encontraron datos de inversionistas.</p>';
+            investorsSummaryEl.innerHTML = '';
         }
     },
 
