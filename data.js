@@ -119,26 +119,60 @@ const DataService = {
     },
 
     /**
-     * Fetch a single CSV from URL using allorigins CORS proxy.
-     * Uses the /get endpoint which returns JSON with base64-encoded content.
+     * Fetch a single CSV from URL using CORS proxy with multiple fallbacks.
      */
     async fetchCSV(url) {
-        const proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent(url);
-        const response = await fetch(proxyUrl);
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-        const json = await response.json();
+        const proxies = [
+            {
+                name: 'allorigins',
+                getUrl: (u) => 'https://api.allorigins.win/get?url=' + encodeURIComponent(u),
+                parseResponse: async (response) => {
+                    const json = await response.json();
+                    let csvText = json.contents;
+                    if (csvText && csvText.startsWith('data:')) {
+                        const base64Data = csvText.split(',')[1];
+                        csvText = atob(base64Data);
+                    }
+                    return csvText;
+                }
+            },
+            {
+                name: 'corsproxy.io',
+                getUrl: (u) => 'https://corsproxy.io/?' + encodeURIComponent(u),
+                parseResponse: async (response) => await response.text()
+            },
+            {
+                name: 'cors-anywhere-heroku',
+                getUrl: (u) => 'https://cors-anywhere.herokuapp.com/' + u,
+                parseResponse: async (response) => await response.text()
+            }
+        ];
 
-        // allorigins returns { contents: "data:text/csv;base64,..." } or plain text
-        let csvText = json.contents;
-        if (csvText.startsWith('data:')) {
-            // Extract base64 content after the comma
-            const base64Data = csvText.split(',')[1];
-            csvText = atob(base64Data);
+        let lastError;
+        for (const proxy of proxies) {
+            try {
+                console.log(`Trying proxy: ${proxy.name}`);
+                const proxyUrl = proxy.getUrl(url);
+                const response = await fetch(proxyUrl, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                const csvText = await proxy.parseResponse(response);
+                if (!csvText || csvText.includes('<!DOCTYPE') || csvText.includes('<html')) {
+                    throw new Error('Invalid response (HTML instead of CSV)');
+                }
+                console.log(`Success with proxy: ${proxy.name}`);
+                return this.parseCSV(csvText);
+            } catch (err) {
+                console.warn(`Proxy ${proxy.name} failed:`, err.message);
+                lastError = err;
+            }
         }
-
-        return this.parseCSV(csvText);
+        throw lastError || new Error('All CORS proxies failed');
     },
 
     /**
