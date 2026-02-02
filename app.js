@@ -209,37 +209,50 @@ const App = {
             {
                 name: 'Hard Costs',
                 budget: budget.hardCosts.total || 0,
-                spent: expSummary.byCategory['Hard Cost'] || 0
+                spent: expSummary.byCategory['Hard Cost'] || 0,
+                color: 'blue'
             },
             {
                 name: 'Soft Costs',
                 budget: budget.softCosts.total || 0,
-                spent: expSummary.byCategory['Soft Cost'] || 0
+                spent: expSummary.byCategory['Soft Cost'] || 0,
+                color: 'purple'
             },
             {
                 name: 'Terreno',
                 budget: budget.terreno.total || 0,
-                spent: expSummary.byCategory['Terreno'] || 0
+                spent: expSummary.byCategory['Terreno'] || 0,
+                color: 'orange'
             }
         ];
 
         container.innerHTML = categories.map(cat => {
             const pct = cat.budget > 0 ? (cat.spent / cat.budget) * 100 : 0;
             const isOverBudget = pct > 100;
-            // Verde si está por debajo del presupuesto, Rojo si lo supera
-            const colorClass = isOverBudget ? 'red' : 'green';
-            const spentColor = isOverBudget ? 'var(--danger)' : 'var(--success)';
+            const isComplete = pct >= 99.5 && pct <= 100.5; // Consideramos ~100% como completo
+
+            // Color de la barra: su color original, azul si 100%, rojo si pasado
+            let colorClass = cat.color;
+            let statusIcon = '';
+            if (isOverBudget) {
+                colorClass = 'red';
+                statusIcon = '<span class="status-icon over">⚠</span>';
+            } else if (isComplete) {
+                colorClass = 'complete';
+                statusIcon = '<span class="status-icon complete">✓</span>';
+            }
+
             return `
                 <div class="progress-item">
                     <div class="progress-header">
-                        <span class="progress-label">${cat.name}</span>
+                        <span class="progress-label">${cat.name} ${statusIcon}</span>
                         <span class="progress-values">${DataService.formatPercent(pct)}</span>
                     </div>
                     <div class="progress-bar-bg">
                         <div class="progress-bar-fill ${colorClass}" style="width: ${Math.min(pct, 100)}%"></div>
                     </div>
                     <div class="progress-amounts">
-                        <span style="color: ${spentColor}">Gastado: ${DataService.formatCurrencyShort(cat.spent)}</span>
+                        <span>Gastado: ${DataService.formatCurrencyShort(cat.spent)}</span>
                         <span>Presupuesto: ${DataService.formatCurrencyShort(cat.budget)}</span>
                     </div>
                 </div>
@@ -258,7 +271,7 @@ const App = {
             { name: 'Terreno', amount: uses.terreno?.amount || 0, pct: uses.terreno?.pct || 0, color: '#dd6b20' }
         ];
 
-        // Calculate conic gradient for pie chart
+        // Calculate conic gradient for donut chart
         let gradientStops = [];
         let currentAngle = 0;
         segments.forEach(s => {
@@ -271,6 +284,13 @@ const App = {
             <div class="capital-total-header">
                 <span class="capital-total-label">Capital Total del Proyecto</span>
                 <span class="capital-total-value">${DataService.formatCurrency(total)}</span>
+            </div>
+            <div class="pie-chart-container">
+                <div class="pie-chart" style="background: conic-gradient(${gradientStops.join(', ')});"></div>
+                <div class="pie-chart-center">
+                    <span class="pie-chart-center-value">100%</span>
+                    <span class="pie-chart-center-label">Asignado</span>
+                </div>
             </div>
             <div class="capital-legend">
                 ${segments.map(s => {
@@ -285,9 +305,6 @@ const App = {
                         <span class="capital-legend-pct">${DataService.formatPercent(pctOfTotal)}</span>
                     </div>
                 `}).join('')}
-            </div>
-            <div class="pie-chart-container" style="margin-top: 1.5rem;">
-                <div class="pie-chart" style="background: conic-gradient(${gradientStops.join(', ')});"></div>
             </div>
         `;
     },

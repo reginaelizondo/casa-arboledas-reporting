@@ -549,6 +549,33 @@ body {
 .progress-bar-fill.orange { background: var(--orange); }
 .progress-bar-fill.green { background: var(--secondary); }
 .progress-bar-fill.red { background: var(--danger); }
+.progress-bar-fill.complete {
+    background: linear-gradient(90deg, var(--secondary) 0%, #2f855a 100%);
+}
+
+/* Status icons for progress items */
+.status-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    font-size: 0.7rem;
+    font-weight: 700;
+    margin-left: 0.5rem;
+    vertical-align: middle;
+}
+
+.status-icon.complete {
+    background: var(--secondary);
+    color: white;
+}
+
+.status-icon.over {
+    background: var(--danger);
+    color: white;
+}
 
 .progress-amounts {
     display: flex;
@@ -1059,30 +1086,30 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.75rem 1rem;
-    background: var(--primary-lighter);
+    padding: 1rem 1.25rem;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
     border-radius: var(--radius-sm);
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.75rem;
 }
 
 .capital-total-label {
     font-size: 0.85rem;
     font-weight: 500;
-    color: var(--text-secondary);
+    color: rgba(255, 255, 255, 0.85);
 }
 
 .capital-total-value {
-    font-size: 1.1rem;
+    font-size: 1.25rem;
     font-weight: 700;
-    color: var(--primary);
+    color: white;
 }
 
 .pie-chart-container {
     position: relative;
-    width: 140px;
-    height: 140px;
+    width: 180px;
+    height: 180px;
     flex-shrink: 0;
-    margin: 0 auto;
+    margin: 0.5rem auto 1rem;
 }
 
 .pie-chart {
@@ -1090,6 +1117,7 @@ body {
     height: 100%;
     border-radius: 50%;
     transform: rotate(-90deg);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 .pie-chart-center {
@@ -1097,18 +1125,19 @@ body {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 70px;
-    height: 70px;
+    width: 100px;
+    height: 100px;
     background: var(--bg-card);
     border-radius: 50%;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 .pie-chart-center-value {
-    font-size: 0.9rem;
+    font-size: 1.1rem;
     font-weight: 700;
     color: var(--text);
 }
@@ -1122,7 +1151,8 @@ body {
 .capital-legend {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 0.5rem;
+    padding: 0.5rem 0;
 }
 
 .capital-legend-item {
@@ -1130,30 +1160,42 @@ body {
     align-items: center;
     justify-content: space-between;
     font-size: 0.88rem;
+    padding: 0.6rem 0.75rem;
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+    transition: background var(--transition);
+}
+
+.capital-legend-item:hover {
+    background: var(--border-light);
 }
 
 .capital-legend-left {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.65rem;
 }
 
 .legend-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    flex-shrink: 0;
 }
 
 .capital-legend-pct {
-    font-weight: 600;
+    font-weight: 700;
     color: var(--text);
+    min-width: 45px;
+    text-align: right;
 }
 
 .capital-legend-amount {
-    font-size: 0.78rem;
+    font-size: 0.82rem;
+    font-weight: 500;
     color: var(--text-secondary);
     margin-left: auto;
-    margin-right: 0.75rem;
+    margin-right: 1rem;
 }
 
 /* === PROPERTY CARDS (Casas + Ventas combinado) === */
@@ -1530,19 +1572,29 @@ body {
         align-items: center;
         gap: 1rem;
     }
+    .capital-total-header {
+        padding: 0.85rem 1rem;
+    }
+    .capital-total-value {
+        font-size: 1.1rem;
+    }
     .pie-chart-container {
-        width: 160px;
-        height: 160px;
+        width: 150px;
+        height: 150px;
+        margin: 0.5rem auto;
     }
     .pie-chart-center {
-        width: 80px;
-        height: 80px;
+        width: 85px;
+        height: 85px;
     }
     .pie-chart-center-value {
         font-size: 1rem;
     }
     .capital-legend {
         width: 100%;
+    }
+    .capital-legend-item {
+        padding: 0.5rem 0.6rem;
     }
 
     /* Progress items */
@@ -1756,25 +1808,36 @@ body {
     }
 
     /* Pie chart smaller on very small screens */
+    .capital-total-header {
+        flex-direction: column;
+        gap: 0.25rem;
+        text-align: center;
+    }
     .pie-chart-container {
         width: 130px;
         height: 130px;
     }
     .pie-chart-center {
-        width: 65px;
-        height: 65px;
+        width: 70px;
+        height: 70px;
     }
     .pie-chart-center-value {
-        font-size: 0.85rem;
+        font-size: 0.9rem;
     }
     .pie-chart-center-label {
         font-size: 0.55rem;
     }
     .capital-legend-item {
         font-size: 0.8rem;
+        padding: 0.45rem 0.5rem;
     }
     .capital-legend-amount {
         font-size: 0.7rem;
+        margin-right: 0.5rem;
+    }
+    .legend-dot {
+        width: 10px;
+        height: 10px;
     }
 
     /* House details 1 column on very small */
