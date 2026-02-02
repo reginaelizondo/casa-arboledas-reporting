@@ -280,7 +280,7 @@ const DataService = {
         }
 
         // Soft Costs - find each subcategory
-        const softLabels = ['Fee Administracion', 'Arquitectura', 'Trámites / Permisos', 'Legal / Fiscal', 'Ingenierías / Estudios', 'IVA Soft Cost'];
+        const softLabels = ['Fee Administracion', 'Arquitectura', 'Trámites / Permisos', 'Legal / Fiscal', 'Ingenierías / Estudios', 'Marketing', 'IVA Soft Cost'];
         data.softCosts.items = [];
         for (const label of softLabels) {
             const idx = findRow(label);

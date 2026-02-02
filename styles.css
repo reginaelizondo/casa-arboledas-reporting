@@ -511,6 +511,16 @@ body {
     color: #2b6cb0;
 }
 
+.badge-purple {
+    background: var(--purple-light);
+    color: #553c9a;
+}
+
+.badge-orange {
+    background: var(--orange-light);
+    color: #9c4221;
+}
+
 /* === PROGRESS BARS === */
 .progress-item {
     margin-bottom: 1.25rem;
@@ -597,29 +607,31 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
     width: 100%;
-    padding: 0.75rem;
-    margin-top: 1rem;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    color: var(--text-secondary);
-    font-size: 0.85rem;
-    font-weight: 500;
-    font-family: var(--font);
+    padding: 0.5rem;
+    margin-top: 0.75rem;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
     cursor: pointer;
     transition: all var(--transition);
 }
 
 .breakdown-toggle:hover {
-    background: var(--border-light);
-    color: var(--text);
-    border-color: var(--text-muted);
+    color: var(--text-secondary);
+}
+
+.breakdown-toggle .toggle-text {
+    display: none;
 }
 
 .breakdown-toggle .toggle-icon {
     transition: transform 0.3s ease;
+    opacity: 0.5;
+}
+
+.breakdown-toggle:hover .toggle-icon {
+    opacity: 1;
 }
 
 .breakdown-toggle.expanded .toggle-icon {

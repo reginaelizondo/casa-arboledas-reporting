@@ -254,21 +254,31 @@ const App = {
     renderBudgetCategory(progressId, badgeId, budgetAmount, spentAmount, color) {
         const pct = budgetAmount > 0 ? (spentAmount / budgetAmount) * 100 : 0;
         const isOverBudget = pct > 100;
-        // Verde si está por debajo del presupuesto, Rojo si lo supera
-        const colorClass = isOverBudget ? 'red' : 'green';
-        const spentColor = isOverBudget ? 'var(--danger)' : 'var(--success)';
+        const isComplete = pct >= 99.5 && pct <= 100.5;
+
+        // Colores originales para la barra principal (azul/morado/naranja)
+        let colorClass = color;
+        let statusIcon = '';
+
+        if (isOverBudget) {
+            colorClass = 'red';
+            statusIcon = '<span class="status-icon over">⚠</span>';
+        } else if (isComplete) {
+            colorClass = 'complete';
+            statusIcon = '<span class="status-icon complete">✓</span>';
+        }
 
         document.getElementById(progressId).innerHTML = `
             <div class="progress-item">
                 <div class="progress-header">
-                    <span class="progress-label">Ejecutado vs Presupuestado</span>
+                    <span class="progress-label">Ejecutado vs Presupuestado ${statusIcon}</span>
                     <span class="progress-values">${DataService.formatPercent(pct)}</span>
                 </div>
                 <div class="progress-bar-bg">
                     <div class="progress-bar-fill ${colorClass}" style="width: ${Math.min(pct, 100)}%"></div>
                 </div>
                 <div class="progress-amounts">
-                    <span style="color: ${spentColor}">Ejecutado: ${DataService.formatCurrency(spentAmount)}</span>
+                    <span>Ejecutado: ${DataService.formatCurrency(spentAmount)}</span>
                     <span>Presupuesto: ${DataService.formatCurrency(budgetAmount)}</span>
                 </div>
             </div>
@@ -276,7 +286,7 @@ const App = {
 
         const badge = document.getElementById(badgeId);
         badge.textContent = DataService.formatPercent(pct);
-        badge.className = 'badge ' + (isOverBudget ? 'badge-red' : 'badge-green');
+        badge.className = 'badge badge-' + color;
     },
 
     renderSubcategoryBreakdown(containerId, items, expSummary, categoryKey, color) {
