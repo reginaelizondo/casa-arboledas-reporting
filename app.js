@@ -530,6 +530,12 @@ const App = {
             return;
         }
 
+        // URLs de las imágenes de los renders
+        const houseImages = [
+            'images/casa1.jpg',
+            'images/casa2.jpg'
+        ];
+
         container.innerHTML = budget.houses.map((house, i) => {
             // Determinar estado y clase de badge
             const status = house.status || 'Disponible';
@@ -541,9 +547,12 @@ const App = {
                 statusClass = 'status-pending';
             }
 
+            const imageUrl = houseImages[i] || '';
+
             return `
                 <div class="property-card">
                     <div class="property-image">
+                        ${imageUrl ? `<img src="${imageUrl}" alt="Render ${house.name || `Casa ${i + 1}`}" loading="lazy">` : `
                         <div class="property-image-placeholder">
                             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                                 <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
@@ -551,6 +560,7 @@ const App = {
                             </svg>
                             <span>Render Casa ${i + 1}</span>
                         </div>
+                        `}
                     </div>
                     <div class="property-content">
                         <div class="property-header">
