@@ -1746,7 +1746,7 @@ body {
 
 .capital-summary-row {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr 2fr;
+    grid-template-columns: repeat(3, 1fr);
     gap: 1.5rem;
     align-items: center;
 }
@@ -1815,7 +1815,7 @@ body {
         grid-template-columns: repeat(2, 1fr);
     }
     .capital-summary-row {
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr;
     }
 }
 

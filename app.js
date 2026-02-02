@@ -471,12 +471,6 @@ const App = {
                         <span class="capital-summary-label">Monto Faltante</span>
                         <span class="capital-summary-value ${totalRemaining > 0 ? 'warning' : 'positive'}">${DataService.formatCurrency(totalRemaining)}</span>
                     </div>
-                    <div class="capital-summary-progress">
-                        <div class="progress-bar-bg large">
-                            <div class="progress-bar-fill green" style="width: ${Math.min(pctTotal, 100)}%"></div>
-                        </div>
-                        <span class="capital-summary-pct">${DataService.formatPercent(pctTotal)} aportado</span>
-                    </div>
                 </div>
             `;
         } else {
