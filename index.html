@@ -84,9 +84,7 @@
                 <button class="nav-btn" data-section="presupuesto">Presupuesto</button>
                 <button class="nav-btn" data-section="financieros">Financieros</button>
                 <button class="nav-btn" data-section="casas">Casas</button>
-                <button class="nav-btn" data-section="ventas">Ventas</button>
                 <button class="nav-btn" data-section="galeria">Galería</button>
-                <button class="nav-btn" data-section="gastos">Gastos</button>
             </div>
         </nav>
 
@@ -180,6 +178,9 @@
                     <div id="hard-cost-progress" class="budget-progress">
                         <!-- Filled by JS -->
                     </div>
+                    <div id="hard-cost-breakdown" class="subcategory-breakdown">
+                        <!-- Filled by JS - desglose de subcategorías -->
+                    </div>
                 </div>
 
                 <!-- Soft Costs -->
@@ -254,19 +255,12 @@
 
             <!-- SECTION: Información de Casas -->
             <section id="section-casas" class="section hidden">
-                <h2 class="section-title">Información de las Casas</h2>
-                <div id="houses-grid" class="grid-2">
+                <h2 class="section-title">Propiedades</h2>
+                <div id="houses-grid" class="houses-grid">
                     <!-- Filled by JS -->
                 </div>
             </section>
 
-            <!-- SECTION: Estado de Ventas -->
-            <section id="section-ventas" class="section hidden">
-                <h2 class="section-title">Estado de Ventas</h2>
-                <div class="grid-2" id="sales-grid">
-                    <!-- Filled by JS -->
-                </div>
-            </section>
 
             <!-- SECTION: Galería de Fotos -->
             <section id="section-galeria" class="section hidden">
@@ -286,65 +280,6 @@
                 </div>
             </section>
 
-            <!-- SECTION: Historial de Gastos -->
-            <section id="section-gastos" class="section hidden">
-                <h2 class="section-title">Historial de Gastos</h2>
-                <div class="card">
-                    <!-- Filters -->
-                    <div class="filters">
-                        <div class="filter-group">
-                            <label>Categoría</label>
-                            <select id="filter-category">
-                                <option value="all">Todas</option>
-                                <option value="Hard Cost">Hard Cost</option>
-                                <option value="Soft Cost">Soft Cost</option>
-                                <option value="Terreno">Terreno</option>
-                            </select>
-                        </div>
-                        <div class="filter-group">
-                            <label>Subcategoría</label>
-                            <select id="filter-subcategory">
-                                <option value="all">Todas</option>
-                            </select>
-                        </div>
-                        <div class="filter-group">
-                            <label>Desde</label>
-                            <input type="date" id="filter-date-from">
-                        </div>
-                        <div class="filter-group">
-                            <label>Hasta</label>
-                            <input type="date" id="filter-date-to">
-                        </div>
-                        <button id="clear-filters" class="btn-secondary">Limpiar filtros</button>
-                    </div>
-
-                    <!-- Table -->
-                    <div class="table-wrapper">
-                        <table id="expenses-table" class="expenses-table">
-                            <thead>
-                                <tr>
-                                    <th>Fecha</th>
-                                    <th>Categoría</th>
-                                    <th>Subcategoría</th>
-                                    <th class="text-right">Monto</th>
-                                </tr>
-                            </thead>
-                            <tbody id="expenses-tbody">
-                                <!-- Filled by JS -->
-                            </tbody>
-                            <tfoot>
-                                <tr>
-                                    <td colspan="3"><strong>Total filtrado</strong></td>
-                                    <td id="expenses-total" class="text-right"><strong>--</strong></td>
-                                </tr>
-                            </tfoot>
-                        </table>
-                    </div>
-                    <div id="no-expenses" class="no-data hidden">
-                        No se encontraron gastos con los filtros seleccionados.
-                    </div>
-                </div>
-            </section>
         </main>
     </div>
 

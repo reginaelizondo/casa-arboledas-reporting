@@ -239,12 +239,36 @@ const DataService = {
                     sqm: this.parseNumber(rows[idx][5]),        // col F
                     pricePerSqm: this.parseNumber(rows[idx][7]), // col H
                     totalCommercial: this.parseNumber(rows[idx][9]), // col J
-                    netIncome: this.parseNumber(rows[idx][10])     // col K
+                    netIncome: this.parseNumber(rows[idx][10]),     // col K
+                    status: (rows[idx][11] || 'Disponible').trim()  // col L - estado de venta
                 });
             }
         }
 
-        // Hard Costs - find "Total de Hard Cost" row
+        // Hard Costs - find subcategories and total
+        const hardCostLabels = [
+            'Preeliminares', 'Cimentacion', 'Cimentación', 'Albañileria', 'Albañilería',
+            'Acabados', 'Pisos y Azulejos', 'Canceleria', 'Cancelería',
+            'Carpinteria', 'Carpintería', 'Instalaciones', 'Varios'
+        ];
+        data.hardCosts.items = [];
+        const addedHardCostNames = new Set();
+        for (const label of hardCostLabels) {
+            const idx = findRow(label);
+            if (idx >= 0 && rows[idx]) {
+                const name = (rows[idx][1] || label).trim();
+                // Avoid duplicates from accent variations
+                const normalizedName = name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+                if (!addedHardCostNames.has(normalizedName)) {
+                    addedHardCostNames.add(normalizedName);
+                    data.hardCosts.items.push({
+                        name: name,
+                        amount: this.parseNumber(rows[idx][10]) // col K - TOTAL
+                    });
+                }
+            }
+        }
+
         const totalHardIdx = findRow('Total de Hard Cost');
         if (totalHardIdx >= 0) {
             data.hardCosts.total = this.parseNumber(rows[totalHardIdx][10]);
@@ -365,12 +389,14 @@ const DataService = {
 
         // Investors (rows 7+ = indices 6+)
         // Read until we hit an empty row or the next section header (row 12 = index 11)
+        // Col A = Nombre, Col C = Proyección, Col D = Aportado
         for (let i = 6; i < 11 && i < rows.length; i++) {
             const row = rows[i];
             if (!row || !row[0] || row[0].trim() === '') break;
             data.investors.push({
                 name: row[0].trim(),
-                amount: this.parseNumber(row[2]) // col C
+                projected: this.parseNumber(row[2]), // col C - proyección
+                contributed: this.parseNumber(row[3]) // col D - aportado
             });
         }
 

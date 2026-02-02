@@ -52,13 +52,6 @@ const App = {
         document.getElementById('print-btn').addEventListener('click', () => window.print());
         document.getElementById('logout-btn').addEventListener('click', () => this.handleLogout());
 
-        // Expense filters
-        document.getElementById('filter-category').addEventListener('change', () => this.filterExpenses());
-        document.getElementById('filter-subcategory').addEventListener('change', () => this.filterExpenses());
-        document.getElementById('filter-date-from').addEventListener('change', () => this.filterExpenses());
-        document.getElementById('filter-date-to').addEventListener('change', () => this.filterExpenses());
-        document.getElementById('clear-filters').addEventListener('click', () => this.clearFilters());
-
         // Lightbox keyboard navigation
         document.addEventListener('keydown', (e) => {
             const lightbox = document.getElementById('lightbox');
@@ -172,8 +165,6 @@ const App = {
         this.renderBudgetVsExecuted(budget, expSummary);
         this.renderFinancials(capital);
         this.renderHouses(budget);
-        this.renderSales(budget);
-        this.renderExpensesTable(expenses);
     },
 
     // ========== SECTION: RESUMEN ==========
@@ -218,26 +209,26 @@ const App = {
             {
                 name: 'Hard Costs',
                 budget: budget.hardCosts.total || 0,
-                spent: expSummary.byCategory['Hard Cost'] || 0,
-                color: 'blue'
+                spent: expSummary.byCategory['Hard Cost'] || 0
             },
             {
                 name: 'Soft Costs',
                 budget: budget.softCosts.total || 0,
-                spent: expSummary.byCategory['Soft Cost'] || 0,
-                color: 'purple'
+                spent: expSummary.byCategory['Soft Cost'] || 0
             },
             {
                 name: 'Terreno',
                 budget: budget.terreno.total || 0,
-                spent: expSummary.byCategory['Terreno'] || 0,
-                color: 'orange'
+                spent: expSummary.byCategory['Terreno'] || 0
             }
         ];
 
         container.innerHTML = categories.map(cat => {
             const pct = cat.budget > 0 ? (cat.spent / cat.budget) * 100 : 0;
-            const colorClass = pct > 100 ? 'red' : cat.color;
+            const isOverBudget = pct > 100;
+            // Verde si está por debajo del presupuesto, Rojo si lo supera
+            const colorClass = isOverBudget ? 'red' : 'green';
+            const spentColor = isOverBudget ? 'var(--danger)' : 'var(--success)';
             return `
                 <div class="progress-item">
                     <div class="progress-header">
@@ -248,7 +239,7 @@ const App = {
                         <div class="progress-bar-fill ${colorClass}" style="width: ${Math.min(pct, 100)}%"></div>
                     </div>
                     <div class="progress-amounts">
-                        <span>Gastado: ${DataService.formatCurrencyShort(cat.spent)}</span>
+                        <span style="color: ${spentColor}">Gastado: ${DataService.formatCurrencyShort(cat.spent)}</span>
                         <span>Presupuesto: ${DataService.formatCurrencyShort(cat.budget)}</span>
                     </div>
                 </div>
@@ -277,12 +268,9 @@ const App = {
         });
 
         container.innerHTML = `
-            <div class="pie-chart-container">
-                <div class="pie-chart" style="background: conic-gradient(${gradientStops.join(', ')});"></div>
-                <div class="pie-chart-center">
-                    <span class="pie-chart-center-value">${DataService.formatCurrencyShort(total)}</span>
-                    <span class="pie-chart-center-label">Total</span>
-                </div>
+            <div class="capital-total-header">
+                <span class="capital-total-label">Capital Total del Proyecto</span>
+                <span class="capital-total-value">${DataService.formatCurrency(total)}</span>
             </div>
             <div class="capital-legend">
                 ${segments.map(s => {
@@ -298,6 +286,9 @@ const App = {
                     </div>
                 `}).join('')}
             </div>
+            <div class="pie-chart-container" style="margin-top: 1.5rem;">
+                <div class="pie-chart" style="background: conic-gradient(${gradientStops.join(', ')});"></div>
+            </div>
         `;
     },
 
@@ -311,6 +302,7 @@ const App = {
             expSummary.byCategory['Hard Cost'] || 0,
             'blue'
         );
+        this.renderSubcategoryBreakdown('hard-cost-breakdown', budget.hardCosts.items || [], expSummary, 'Hard Cost', 'blue');
 
         // Soft Costs
         this.renderBudgetCategory(
@@ -356,7 +348,10 @@ const App = {
 
     renderBudgetCategory(progressId, badgeId, budgetAmount, spentAmount, color) {
         const pct = budgetAmount > 0 ? (spentAmount / budgetAmount) * 100 : 0;
-        const colorClass = pct > 100 ? 'red' : color;
+        const isOverBudget = pct > 100;
+        // Verde si está por debajo del presupuesto, Rojo si lo supera
+        const colorClass = isOverBudget ? 'red' : 'green';
+        const spentColor = isOverBudget ? 'var(--danger)' : 'var(--success)';
 
         document.getElementById(progressId).innerHTML = `
             <div class="progress-item">
@@ -368,7 +363,7 @@ const App = {
                     <div class="progress-bar-fill ${colorClass}" style="width: ${Math.min(pct, 100)}%"></div>
                 </div>
                 <div class="progress-amounts">
-                    <span>Ejecutado: ${DataService.formatCurrency(spentAmount)}</span>
+                    <span style="color: ${spentColor}">Ejecutado: ${DataService.formatCurrency(spentAmount)}</span>
                     <span>Presupuesto: ${DataService.formatCurrency(budgetAmount)}</span>
                 </div>
             </div>
@@ -376,7 +371,7 @@ const App = {
 
         const badge = document.getElementById(badgeId);
         badge.textContent = DataService.formatPercent(pct);
-        badge.className = 'badge ' + (pct > 100 ? 'badge-red' : pct > 75 ? 'badge-orange' : 'badge-green');
+        badge.className = 'badge ' + (isOverBudget ? 'badge-red' : 'badge-green');
     },
 
     renderSubcategoryBreakdown(containerId, items, expSummary, categoryKey, color) {
@@ -390,14 +385,17 @@ const App = {
             const subKey = `${categoryKey}|${item.name}`;
             const spent = expSummary.bySubcategory[subKey] || 0;
             const pct = item.amount > 0 ? (spent / item.amount) * 100 : 0;
-            const barColor = pct > 100 ? 'var(--danger)' : `var(--${color === 'purple' ? 'purple' : color === 'orange' ? 'warning' : 'blue'})`;
+            const isOverBudget = pct > 100;
+            // Verde si está por debajo del presupuesto, Rojo si lo supera
+            const barColor = isOverBudget ? 'var(--danger)' : 'var(--success)';
+            const spentColor = isOverBudget ? 'var(--danger)' : 'var(--success)';
 
             return `
                 <div class="subcategory-item">
                     <span class="subcategory-name">${item.name}</span>
                     <div class="subcategory-values">
                         <span class="subcat-budget">Pres: ${DataService.formatCurrencyShort(item.amount)}</span>
-                        <span class="subcat-spent">Gast: ${DataService.formatCurrencyShort(spent)}</span>
+                        <span class="subcat-spent" style="color: ${spentColor}">Gast: ${DataService.formatCurrencyShort(spent)}</span>
                         <div class="subcat-bar">
                             <div class="subcat-bar-fill" style="width: ${Math.min(pct, 100)}%; background: ${barColor}"></div>
                         </div>
@@ -456,24 +454,74 @@ const App = {
         // Investors
         const investorsEl = document.getElementById('investors-list');
         if (capital.investors.length > 0) {
-            investorsEl.innerHTML = capital.investors.map(inv => {
-                const initials = inv.name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
-                return `
-                    <div class="investor-card">
-                        <div class="investor-avatar">${initials}</div>
-                        <div>
-                            <div class="investor-name">${inv.name}</div>
-                            <div class="investor-amount">${DataService.formatCurrency(inv.amount)}</div>
-                        </div>
+            // Calcular totales
+            const totalProjected = capital.investors.reduce((sum, inv) => sum + (inv.projected || 0), 0);
+            const totalContributed = capital.investors.reduce((sum, inv) => sum + (inv.contributed || 0), 0);
+            const totalRemaining = totalProjected - totalContributed;
+
+            investorsEl.innerHTML = `
+                <div class="investors-summary">
+                    <div class="investors-summary-item">
+                        <span class="investors-summary-label">Capital Proyectado</span>
+                        <span class="investors-summary-value">${DataService.formatCurrency(totalProjected)}</span>
                     </div>
-                `;
-            }).join('');
+                    <div class="investors-summary-item">
+                        <span class="investors-summary-label">Total Aportado</span>
+                        <span class="investors-summary-value positive">${DataService.formatCurrency(totalContributed)}</span>
+                    </div>
+                    <div class="investors-summary-item">
+                        <span class="investors-summary-label">Monto Faltante</span>
+                        <span class="investors-summary-value ${totalRemaining > 0 ? 'warning' : 'positive'}">${DataService.formatCurrency(totalRemaining)}</span>
+                    </div>
+                </div>
+                <div class="investors-progress">
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill green" style="width: ${totalProjected > 0 ? Math.min((totalContributed / totalProjected) * 100, 100) : 0}%"></div>
+                    </div>
+                    <span class="investors-progress-label">${DataService.formatPercent(totalProjected > 0 ? (totalContributed / totalProjected) * 100 : 0)} del capital aportado</span>
+                </div>
+                <h4 class="investors-list-title">Detalle por Inversionista</h4>
+                <div class="investors-cards">
+                    ${capital.investors.map(inv => {
+                        const initials = inv.name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+                        const contributed = inv.contributed || 0;
+                        const projected = inv.projected || 0;
+                        const remaining = projected - contributed;
+                        const pctContributed = projected > 0 ? (contributed / projected) * 100 : 0;
+                        return `
+                            <div class="investor-card">
+                                <div class="investor-avatar">${initials}</div>
+                                <div class="investor-info">
+                                    <div class="investor-name">${inv.name}</div>
+                                    <div class="investor-amounts">
+                                        <div class="investor-amount-row">
+                                            <span class="investor-amount-label">Proyectado:</span>
+                                            <span class="investor-amount-value">${DataService.formatCurrency(projected)}</span>
+                                        </div>
+                                        <div class="investor-amount-row">
+                                            <span class="investor-amount-label">Aportado:</span>
+                                            <span class="investor-amount-value positive">${DataService.formatCurrency(contributed)}</span>
+                                        </div>
+                                        <div class="investor-amount-row">
+                                            <span class="investor-amount-label">Faltante:</span>
+                                            <span class="investor-amount-value ${remaining > 0 ? 'warning' : ''}">${DataService.formatCurrency(remaining)}</span>
+                                        </div>
+                                    </div>
+                                    <div class="investor-progress-bar">
+                                        <div class="investor-progress-fill" style="width: ${Math.min(pctContributed, 100)}%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
         } else {
             investorsEl.innerHTML = '<p class="no-data">No se encontraron datos de inversionistas.</p>';
         }
     },
 
-    // ========== SECTION: CASAS ==========
+    // ========== SECTION: CASAS (combinado con Ventas) ==========
 
     renderHouses(budget) {
         const container = document.getElementById('houses-grid');
@@ -482,75 +530,75 @@ const App = {
             return;
         }
 
-        container.innerHTML = budget.houses.map((house, i) => `
-            <div class="house-card">
-                <div class="house-header">
-                    <div class="house-icon">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-                    </div>
-                    <span class="house-name">Casa ${i + 1}</span>
-                </div>
-                <div class="house-details">
-                    <div class="house-detail">
-                        <div class="house-detail-label">Superficie</div>
-                        <div class="house-detail-value">${house.sqm.toLocaleString('en-US')} m&sup2;</div>
-                    </div>
-                    <div class="house-detail">
-                        <div class="house-detail-label">Precio por m&sup2;</div>
-                        <div class="house-detail-value">${DataService.formatCurrency(house.pricePerSqm)}</div>
-                    </div>
-                    <div class="house-detail">
-                        <div class="house-detail-label">Precio de Venta</div>
-                        <div class="house-detail-value">${DataService.formatCurrency(house.totalCommercial)}</div>
-                    </div>
-                    <div class="house-detail">
-                        <div class="house-detail-label">Ingreso Neto</div>
-                        <div class="house-detail-value">${DataService.formatCurrency(house.netIncome)}</div>
-                    </div>
-                </div>
-            </div>
-        `).join('');
-    },
+        container.innerHTML = budget.houses.map((house, i) => {
+            // Determinar estado y clase de badge
+            const status = house.status || 'Disponible';
+            const statusLower = status.toLowerCase();
+            let statusClass = 'status-available';
+            if (statusLower.includes('vendida') || statusLower.includes('vendido')) {
+                statusClass = 'status-sold';
+            } else if (statusLower.includes('proceso') || statusLower.includes('reservada') || statusLower.includes('reservado')) {
+                statusClass = 'status-pending';
+            }
 
-    // ========== SECTION: VENTAS (Placeholder) ==========
-
-    renderSales(budget) {
-        const container = document.getElementById('sales-grid');
-        const houses = budget.houses.length ? budget.houses : [
-            { totalCommercial: 0 }, { totalCommercial: 0 }
-        ];
-
-        const statuses = [
-            { label: 'Disponible', class: 'status-available' },
-            { label: 'Disponible', class: 'status-available' }
-        ];
-
-        container.innerHTML = houses.map((house, i) => `
-            <div class="sale-card">
-                <div class="sale-header">
-                    <span class="sale-name">Casa ${i + 1}</span>
-                    <span class="sale-status ${statuses[i].class}">${statuses[i].label}</span>
+            return `
+                <div class="property-card">
+                    <div class="property-image">
+                        <div class="property-image-placeholder">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                                <polyline points="9 22 9 12 15 12 15 22"/>
+                            </svg>
+                            <span>Render Casa ${i + 1}</span>
+                        </div>
+                    </div>
+                    <div class="property-content">
+                        <div class="property-header">
+                            <h3 class="property-name">${house.name || `Casa ${i + 1}`}</h3>
+                            <span class="property-status ${statusClass}">${status}</span>
+                        </div>
+                        <div class="property-details">
+                            <div class="property-detail">
+                                <span class="property-detail-icon">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+                                </span>
+                                <div>
+                                    <span class="property-detail-label">Superficie</span>
+                                    <span class="property-detail-value">${house.sqm.toLocaleString('en-US')} m²</span>
+                                </div>
+                            </div>
+                            <div class="property-detail">
+                                <span class="property-detail-icon">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                                </span>
+                                <div>
+                                    <span class="property-detail-label">Precio / m²</span>
+                                    <span class="property-detail-value">${DataService.formatCurrency(house.pricePerSqm)}</span>
+                                </div>
+                            </div>
+                            <div class="property-detail">
+                                <span class="property-detail-icon">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                                </span>
+                                <div>
+                                    <span class="property-detail-label">Precio Total</span>
+                                    <span class="property-detail-value highlight">${DataService.formatCurrency(house.totalCommercial)}</span>
+                                </div>
+                            </div>
+                            <div class="property-detail">
+                                <span class="property-detail-icon">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+                                </span>
+                                <div>
+                                    <span class="property-detail-label">Ingreso Neto</span>
+                                    <span class="property-detail-value">${DataService.formatCurrency(house.netIncome)}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="sale-info">
-                    <div class="sale-row">
-                        <span class="sale-row-label">Precio de venta</span>
-                        <span class="sale-row-value">${DataService.formatCurrency(house.totalCommercial)}</span>
-                    </div>
-                    <div class="sale-row">
-                        <span class="sale-row-label">Estado</span>
-                        <span class="sale-row-value">${statuses[i].label}</span>
-                    </div>
-                    <div class="sale-row">
-                        <span class="sale-row-label">Comprador</span>
-                        <span class="sale-row-value" style="color: var(--text-muted)">Pendiente</span>
-                    </div>
-                    <div class="sale-row">
-                        <span class="sale-row-label">Fecha estimada de cierre</span>
-                        <span class="sale-row-value" style="color: var(--text-muted)">Por definir</span>
-                    </div>
-                </div>
-            </div>
-        `).join('');
+            `;
+        }).join('');
     },
 
     // ========== SECTION: GALERÍA ==========
@@ -692,96 +740,6 @@ const App = {
         this.openLightbox(this.currentPhotoIndex);
     },
 
-    // ========== SECTION: GASTOS ==========
-
-    renderExpensesTable(expenses) {
-        // Populate subcategory filter
-        const subcategories = [...new Set(expenses.map(e => e.subcategory).filter(Boolean))].sort();
-        const subSelect = document.getElementById('filter-subcategory');
-        subSelect.innerHTML = '<option value="all">Todas</option>' +
-            subcategories.map(s => `<option value="${s}">${s}</option>`).join('');
-
-        this.filterExpenses();
-    },
-
-    filterExpenses() {
-        if (!this.data) return;
-
-        const category = document.getElementById('filter-category').value;
-        const subcategory = document.getElementById('filter-subcategory').value;
-        const dateFrom = document.getElementById('filter-date-from').value;
-        const dateTo = document.getElementById('filter-date-to').value;
-
-        let filtered = [...this.data.expenses];
-
-        if (category !== 'all') {
-            filtered = filtered.filter(e => DataService.normalizeCategory(e.category) === category);
-        }
-        if (subcategory !== 'all') {
-            filtered = filtered.filter(e => e.subcategory === subcategory);
-        }
-        if (dateFrom) {
-            const from = new Date(dateFrom);
-            filtered = filtered.filter(e => e.dateObj && e.dateObj >= from);
-        }
-        if (dateTo) {
-            const to = new Date(dateTo);
-            to.setHours(23, 59, 59, 999);
-            filtered = filtered.filter(e => e.dateObj && e.dateObj <= to);
-        }
-
-        const tbody = document.getElementById('expenses-tbody');
-        const noExpenses = document.getElementById('no-expenses');
-        const tableWrapper = document.querySelector('.table-wrapper');
-
-        if (filtered.length === 0) {
-            tbody.innerHTML = '';
-            noExpenses.classList.remove('hidden');
-            tableWrapper.classList.add('hidden');
-            return;
-        }
-
-        noExpenses.classList.add('hidden');
-        tableWrapper.classList.remove('hidden');
-
-        // Sort by date descending
-        filtered.sort((a, b) => {
-            if (!a.dateObj && !b.dateObj) return 0;
-            if (!a.dateObj) return 1;
-            if (!b.dateObj) return -1;
-            return b.dateObj - a.dateObj;
-        });
-
-        let total = 0;
-        tbody.innerHTML = filtered.map(exp => {
-            total += exp.amount;
-            const normCat = DataService.normalizeCategory(exp.category);
-            const tagClass = normCat === 'Hard Cost' ? 'tag-hard' :
-                             normCat === 'Soft Cost' ? 'tag-soft' : 'tag-terreno';
-            const formattedDate = exp.dateObj
-                ? exp.dateObj.toLocaleDateString('es-MX', { year: 'numeric', month: 'short', day: 'numeric' })
-                : exp.date || '-';
-
-            return `
-                <tr>
-                    <td>${formattedDate}</td>
-                    <td><span class="category-tag ${tagClass}">${normCat}</span></td>
-                    <td>${exp.subcategory}</td>
-                    <td class="text-right">${DataService.formatCurrency(exp.amount)}</td>
-                </tr>
-            `;
-        }).join('');
-
-        document.getElementById('expenses-total').innerHTML = `<strong>${DataService.formatCurrency(total)}</strong>`;
-    },
-
-    clearFilters() {
-        document.getElementById('filter-category').value = 'all';
-        document.getElementById('filter-subcategory').value = 'all';
-        document.getElementById('filter-date-from').value = '';
-        document.getElementById('filter-date-to').value = '';
-        this.filterExpenses();
-    }
 };
 
 // Initialize on DOM ready
