@@ -638,6 +638,37 @@ body {
     transform: rotate(180deg);
 }
 
+/* Toggle colors by category */
+.breakdown-toggle.toggle-blue {
+    color: var(--blue);
+}
+.breakdown-toggle.toggle-blue .toggle-icon {
+    opacity: 0.7;
+}
+.breakdown-toggle.toggle-blue:hover .toggle-icon {
+    opacity: 1;
+}
+
+.breakdown-toggle.toggle-purple {
+    color: var(--purple);
+}
+.breakdown-toggle.toggle-purple .toggle-icon {
+    opacity: 0.7;
+}
+.breakdown-toggle.toggle-purple:hover .toggle-icon {
+    opacity: 1;
+}
+
+.breakdown-toggle.toggle-orange {
+    color: var(--orange);
+}
+.breakdown-toggle.toggle-orange .toggle-icon {
+    opacity: 0.7;
+}
+.breakdown-toggle.toggle-orange:hover .toggle-icon {
+    opacity: 1;
+}
+
 /* === SUBCATEGORY BREAKDOWN === */
 .subcategory-breakdown {
     margin-top: 1rem;
