@@ -81,7 +81,6 @@
         <nav class="nav">
             <div class="nav-inner">
                 <button class="nav-btn active" data-section="resumen">Resumen</button>
-                <button class="nav-btn" data-section="presupuesto">Presupuesto</button>
                 <button class="nav-btn" data-section="financieros">Financieros</button>
                 <button class="nav-btn" data-section="casas">Casas</button>
                 <button class="nav-btn" data-section="galeria">Galería</button>
@@ -145,26 +144,8 @@
                     </div>
                 </div>
 
-                <!-- Quick Overview -->
-                <div class="grid-2">
-                    <div class="card">
-                        <h3 class="card-title">Avance por Categoría</h3>
-                        <div id="category-progress-summary" class="progress-list">
-                            <!-- Filled by JS -->
-                        </div>
-                    </div>
-                    <div class="card">
-                        <h3 class="card-title">Distribución del Capital</h3>
-                        <div id="capital-distribution" class="capital-dist">
-                            <!-- Filled by JS -->
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- SECTION: Presupuesto vs Ejecutado -->
-            <section id="section-presupuesto" class="section hidden">
-                <h2 class="section-title">Presupuesto vs Ejecutado</h2>
+                <!-- Avance por Categoría con desglose -->
+                <h3 class="section-subtitle">Avance por Categoría</h3>
 
                 <!-- Hard Costs -->
                 <div class="card budget-card">
@@ -229,7 +210,7 @@
                     </div>
                 </div>
 
-                <!-- Totals -->
+                <!-- Resumen Total -->
                 <div class="card card-highlight">
                     <div class="card-header">
                         <h3 class="card-title">Resumen Total</h3>
