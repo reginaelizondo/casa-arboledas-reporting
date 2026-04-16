@@ -493,6 +493,16 @@ const App = {
             'images/casa2.jpg'
         ];
 
+        const inmuebles24Link = `
+            <div style="grid-column: 1 / -1; text-align: center; margin-top: 8px;">
+                <a href="https://www.inmuebles24.com/propiedades/clasificado/veclcapa-preventa-casa-de-lujo-en-privada-con-seguridad-y-149223492.html?n_src=Listado&n_pg=1&n_pos=1"
+                   target="_blank"
+                   style="display: inline-block; padding: 10px 24px; background: #1a1a2e; color: #fff; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: 600;">
+                    Ver en Inmuebles24
+                </a>
+            </div>
+        `;
+
         container.innerHTML = budget.houses.map((house, i) => {
             // Determinar estado y clase de badge
             const status = house.status || 'Disponible';
@@ -565,7 +575,7 @@ const App = {
                     </div>
                 </div>
             `;
-        }).join('');
+        }).join('') + inmuebles24Link;
     },
 
     // ========== SECTION: GALERÍA ==========
