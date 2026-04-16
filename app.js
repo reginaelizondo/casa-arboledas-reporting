@@ -493,15 +493,10 @@ const App = {
             'images/casa2.jpg'
         ];
 
-        const inmuebles24Link = `
-            <div style="grid-column: 1 / -1; text-align: center; margin-top: 8px;">
-                <a href="https://www.inmuebles24.com/propiedades/clasificado/veclcapa-preventa-casa-de-lujo-en-privada-con-seguridad-y-149223492.html?n_src=Listado&n_pg=1&n_pos=1"
-                   target="_blank"
-                   style="display: inline-block; padding: 10px 24px; background: #1a1a2e; color: #fff; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: 600;">
-                    Ver en Inmuebles24
-                </a>
-            </div>
-        `;
+        const inmuebles24Urls = [
+            'https://www.inmuebles24.com/propiedades/clasificado/veclcapa-preventa-de-casa-lujo-en-privada-con-seguridad-y-149133727.html',
+            'https://www.inmuebles24.com/propiedades/clasificado/veclcapa-preventa-casa-de-lujo-en-privada-con-seguridad-y-149223492.html?n_src=Listado&n_pg=1&n_pos=1'
+        ];
 
         container.innerHTML = budget.houses.map((house, i) => {
             // Determinar estado y clase de badge
@@ -571,11 +566,22 @@ const App = {
                                     <span class="property-detail-value">${DataService.formatCurrency(house.netIncome)}</span>
                                 </div>
                             </div>
+                            ${inmuebles24Urls[i] ? `
+                            <div class="property-detail">
+                                <span class="property-detail-icon">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                </span>
+                                <div>
+                                    <span class="property-detail-label">Inmuebles24</span>
+                                    <a href="${inmuebles24Urls[i]}" target="_blank" class="property-detail-value" style="color: inherit; text-decoration: underline;">Ver anuncio</a>
+                                </div>
+                            </div>
+                            ` : ''}
                         </div>
                     </div>
                 </div>
             `;
-        }).join('') + inmuebles24Link;
+        }).join('');
     },
 
     // ========== SECTION: GALERÍA ==========
