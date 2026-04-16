@@ -586,65 +586,17 @@ const App = {
 
     // ========== SECTION: GALERÍA ==========
 
-    async loadGallery() {
-        const loadingEl = document.getElementById('gallery-loading');
-        const gridEl = document.getElementById('gallery-grid');
-        const emptyEl = document.getElementById('gallery-empty');
+    loadGallery() {
+        const container = document.getElementById('gallery-container');
+        const folderId = this.extractFolderId(this.project.driveFolder);
 
-        loadingEl.classList.remove('hidden');
-        gridEl.classList.add('hidden');
-        emptyEl.classList.add('hidden');
-
-        try {
-            // Google Drive folder approach:
-            // We'll use the folder ID to construct thumbnail URLs.
-            // Since we can't list files from a public folder without API key easily from client-side,
-            // we embed the folder as an iframe or use known image IDs.
-            // For now, we'll try to use the Google Drive embed approach.
-
-            const folderId = this.extractFolderId(this.project.driveFolder);
-            if (!folderId) {
-                throw new Error('No se pudo obtener el ID de la carpeta de Drive.');
-            }
-
-            // Try fetching the folder page to extract file IDs
-            const photos = await this.fetchDrivePhotos(folderId);
-
-            if (photos.length === 0) {
-                loadingEl.classList.add('hidden');
-                emptyEl.classList.remove('hidden');
-                // Show fallback embed
-                emptyEl.innerHTML = `
-                    <p>Las fotos se pueden ver directamente en Google Drive:</p>
-                    <a href="${this.project.driveFolder}" target="_blank" rel="noopener" style="color: var(--primary); text-decoration: underline; margin-top: 0.5rem;">
-                        Abrir carpeta de fotos en Google Drive
-                    </a>
-                `;
-                return;
-            }
-
-            this.photos = photos;
-            gridEl.innerHTML = photos.map((photo, idx) => `
-                <div class="gallery-item" onclick="App.openLightbox(${idx})">
-                    <img src="${photo.thumbnail}" alt="${photo.name || 'Foto de avance'}" loading="lazy" onerror="this.parentElement.style.display='none'">
-                    <div class="gallery-item-overlay">${photo.name || ''}</div>
-                </div>
-            `).join('');
-
-            loadingEl.classList.add('hidden');
-            gridEl.classList.remove('hidden');
-        } catch (err) {
-            console.error('Error loading gallery:', err);
-            loadingEl.classList.add('hidden');
-            emptyEl.classList.remove('hidden');
-            emptyEl.innerHTML = `
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#a0aec0" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                <p style="margin-top: 1rem;">Las fotos se pueden ver directamente en Google Drive:</p>
-                <a href="${this.project.driveFolder}" target="_blank" rel="noopener" style="color: var(--primary); text-decoration: underline; margin-top: 0.5rem; font-weight: 500;">
-                    Abrir carpeta de fotos en Google Drive
-                </a>
-            `;
-        }
+        container.innerHTML = `
+            <iframe
+                src="https://drive.google.com/embeddedfolderview?id=${folderId}#grid"
+                style="width: 100%; height: 700px; border: none; border-radius: 8px;"
+                allowfullscreen>
+            </iframe>
+        `;
     },
 
     extractFolderId(url) {
